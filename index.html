@@ -1,0 +1,269 @@
+---
+title: "STORM — Project Page"
+layout: null
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>{{ page.title | default: site.title }}</title>
+    <meta
+      name="description"
+      content="{{ site.description | escape }}"
+    />
+
+    <meta property="og:title" content="{{ page.title | default: site.title | escape }}" />
+    <meta
+      property="og:description"
+      content="{{ site.description | escape }}"
+    />
+    <meta property="og:type" content="website" />
+
+    <link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}" type="image/svg+xml" />
+    <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="{{ '/' | relative_url }}">
+          <span class="brand-mark" aria-hidden="true">ST</span>
+          <span class="brand-text">STORM</span>
+        </a>
+
+        <nav class="nav" aria-label="Primary navigation">
+          <button
+            class="nav-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="nav-links"
+          >
+            Menu
+          </button>
+          <div id="nav-links" class="nav-links">
+            <a href="#abstract">Abstract</a>
+            <a href="#methodology">Methodology</a>
+            <a href="#resources">Resources</a>
+            <a href="#citation">Citation</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <section class="hero">
+        <div class="container">
+          <p class="eyebrow">STORM Webpage</p>
+          <h2>
+            STORM: A Spatio-Temporal Factor Model Based on Dual Vector
+            Quantized Variational Autoencoders for Financial Trading
+          </h2>
+        </div>
+
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="subtitle">
+              STORM is a Spatio-Temporal factor Model based on dual vector quantized variational autoencoders that extracts stock features from both temporal and spatial perspectives.
+            </p>
+            <p class="subtitle">
+              The model fuses and aligns these features at a fine-grained semantic level, representing factors as multi-dimensional embeddings rather than single values.
+              By utilizing discrete codebooks to cluster similar factor embeddings, STORM ensures orthogonality and diversity, effectively distinguishing between different factors for financial trading selection.
+            </p>
+            <p class="subtitle">
+              Extensive experiments in portfolio management and individual trading tasks demonstrate the model's superior performance and flexibility in adapting to downstream financial applications.
+            </p>
+
+            <div class="cta">
+              <a
+                class="btn primary"
+                href="https://github.com/DVampire/Storm"
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on GitHub
+              </a>
+              <a
+                class="btn"
+                href="https://arxiv.org/pdf/2412.09468"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Paper
+              </a>
+              <a
+                class="btn"
+                href="{{ '/assets/STORM oral.pdf' | relative_url }}"
+                target="_blank"
+                rel="noreferrer"
+                download="STORM oral.pdf"
+              >
+                Slides
+              </a>
+              <a
+                class="btn"
+                href="{{ '/assets/STORM poster.pdf' | relative_url }}"
+                target="_blank"
+                rel="noreferrer"
+                download="STORM poster.pdf"
+              >
+                Poster
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <figure class="hero-figure">
+              <img
+                src="{{ '/assets/overview.png' | relative_url }}"
+                alt="Overview of the STORM framework"
+                loading="lazy"
+              />
+            <figcaption>Figure 1: Overall architecture of STORM.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="abstract" class="section">
+        <div class="container">
+          <h2>Challenges</h2>
+          <p class="lead">
+            Recently, we have witnessed the rise of latent factor models, connecting the factor model with the generative model, the variational autoencoder (VAE). These VAE-based models describe high-dimensional data (<b>prices</b>) to low-dimensional representations (<b>factors</b>), and learn factors self-adaptively. Although latent factor models have demonstrated substantial success in financial trading tasks, they still face several significant issues:
+          </p>
+          <div class="callouts">
+            <div class="callout">
+              <h3>CH1: Limited Reflection of Market Complexity</h3>
+              <p>Latent factor models represent factors as single values are inherently constrained by their insufficient capacity to capture the intricate complexity and nonlinearity of financial data, rendering them vulnerable to noise and non-stationarity, which compromises their predictive accuracy and stability.</p>
+            </div>
+            <div class="callout">
+              <h3>CH2: Factor Inefficiency</h3>
+              <p>VAE-learned factors suffer from three inefficiencies: i) focusing mainly on cross-sectional factors while neglecting temporal information, ii) allowing noise in continuous latent spaces to overshadow meaningful signals, and iii) lacking independence among factors, which leads to multicollinearity and weak adaptability to varying market conditions.</p>
+            </div>
+            <div class="callout">
+              <h3>CH3: Lack of Factor Selection</h3>
+              <p>Existing latent factor models primarily focus on generating factors without adequately differentiating between them. Furthermore, they neglect the crucial process of factor selection, which is essential for identifying impactful factors, thereby limiting the model's overall effectiveness and precision.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="methodology" class="section section-alt">
+        <div class="container">
+          <h2>Methodology</h2>
+          <div class="grid-2">
+            <div class="panel">
+              <h3>Method overview</h3>
+              <p>
+                STORM is in a dual VQ-VAE structure, with time-series module, cross-sectional module, and the factor module to align and fuse learned factors.
+              </p>
+              <figure class="figure">
+                <img
+                  src="{{ '/assets/model.png' | relative_url }}"
+                  alt="Model architecture of STORM"
+                  loading="lazy"
+                />
+                <figcaption>Figure 2: STORM's architecture.</figcaption>
+              </figure>
+            </div>
+            <div class="panel">
+              <h3>Time-sieres and Cross-sectional Modules</h3>
+              <p>
+                <b>Patching and Encoding</b>: In TS module, observed data is divided along the stock number dimension. In CS module, it’s divided along the time axis. Then we use Transformer as encoders and decoders to capture complex patterns.</p>
+              <p>
+                <b>Codebook Construction and Optimization</b>:
+                Diversity loss <code>\mathcal{L}_{div}</code> enhance representational capacity.
+                Orthogonality loss forces factor orthogonality.
+              </p>
+              <p>
+                <b>Decoding and Reconstruction: </b>
+              </p>
+
+              <h3>Factor Module</h3>
+              <p>
+                <b>Feature Fusion and Alignment</b>: We use multiscale encoder and contrastive learning layer to fuse and align TS and CS features at fine-grained and semantic levels.
+              </p>
+              <p>
+                <b>Prior - Posterior Learning</b>: Concatenate two latent features, which are used to predict the future returns. The factors are then be used in portfolio and trading downstream tasks.
+              </p>
+              
+              <!-- <p class="small muted">
+                Replace with your real numbers and add a note about dataset /
+                metric.
+              </p> -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="resources" class="section">
+        <div class="container">
+          <h2>Resources</h2>
+          <div class="resource-list">
+            <a class="resource" href="#" target="_blank" rel="noreferrer">
+              <div class="resource-title">Paper</div>
+              <div class="resource-desc">PDF + supplementary</div>
+            </a>
+            <a class="resource" href="#" target="_blank" rel="noreferrer">
+              <div class="resource-title">Code</div>
+              <div class="resource-desc">GitHub repository</div>
+            </a>
+            <a class="resource" href="#" target="_blank" rel="noreferrer">
+              <div class="resource-title">Dataset</div>
+              <div class="resource-desc">Download / instructions</div>
+            </a>
+            <a class="resource" href="#" target="_blank" rel="noreferrer">
+              <div class="resource-title">Poster</div>
+              <div class="resource-desc">High-res PDF</div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section id="citation" class="section section-alt">
+        <div class="container">
+          <div class="citation-header">
+            <h2>Citation</h2>
+            <button class="btn small" type="button" id="copy-cite">
+              Copy BibTeX
+            </button>
+          </div>
+
+          <pre class="codeblock" aria-label="BibTeX citation"><code id="bibtex">@article{zhao2024storm,
+title={STORM: A Spatio-Temporal Factor Model Based on Dual Vector Quantized Variational Autoencoders for Financial Trading},
+author={Zhao, Yilei and Zhang, Wentao and Yang, Tingran and Jiang, Yong and Huang, Fei and Lim, Wei Yang Bryan},
+journal={arXiv preprint arXiv:2412.09468},
+year={2024}
+}</code></pre>
+          <p class="small muted">
+            Update the BibTeX entry to match your paper.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-left">
+          <span class="muted">© <span id="year"></span> STORM</span>
+        </div>
+        <div class="footer-right">
+          <a
+            class="link"
+            href="https://github.com/{{ site.github_username | default: 'elainezhao92' }}"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+          <a class="link" href="#content">Back to top ↑</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="{{ '/script.js' | relative_url }}"></script>
+  </body>
+</html>

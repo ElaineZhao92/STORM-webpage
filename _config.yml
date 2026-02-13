@@ -1,0 +1,21 @@
+title: "STORM — Project Page"
+description: "Project webpage for STORM: overview, highlights, resources, and citation."
+
+# GitHub Pages project site settings:
+# final URL will be: https://elainezhao92.github.io/storm
+url: "https://elainezhao92.github.io"
+baseurl: "/storm"
+
+github_username: "elainezhao92"
+
+exclude:
+  - .github
+  - .idea
+  - .jekyll-cache
+  - .sass-cache
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - README.md
+  - node_modules
+  - vendor
