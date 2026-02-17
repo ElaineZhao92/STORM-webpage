@@ -5,6 +5,8 @@ layout: null
 <!doctype html>
 <html lang="en">
   <head>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
@@ -45,9 +47,9 @@ layout: null
             Menu
           </button>
           <div id="nav-links" class="nav-links">
-            <a href="#abstract">Abstract</a>
+            <a href="#intro">Intro</a>
             <a href="#methodology">Methodology</a>
-            <a href="#resources">Resources</a>
+            <a href="#Experiment Results">Experiment Results</a>
             <a href="#citation">Citation</a>
           </div>
         </nav>
@@ -58,10 +60,16 @@ layout: null
       <section class="hero">
         <div class="container">
           <p class="eyebrow">STORM Webpage</p>
-          <h2>
+          <p class="hero-title">
             STORM: A Spatio-Temporal Factor Model Based on Dual Vector
             Quantized Variational Autoencoders for Financial Trading
-          </h2>
+          </p>
+          <p class="hero-authors">
+            Yilei Zhao<sup>*</sup>, Wentao Zhang<sup>*</sup>, Tingran Yang, Yong Jiang, Fei Huang, Wei Yang Bryan Lim<sup><b>&dagger;</b></sup>
+          </p>
+          <p class="hero-venue">
+            Accepted by WSDM 2026
+          </p>
         </div>
 
         <div class="container hero-grid">
@@ -128,9 +136,9 @@ layout: null
         </div>
       </section>
 
-      <section id="abstract" class="section">
+      <section id="intro" class="section">
         <div class="container">
-          <h2>Challenges</h2>
+          <h2>Introduction</h2>
           <p class="lead">
             Recently, we have witnessed the rise of latent factor models, connecting the factor model with the generative model, the variational autoencoder (VAE). These VAE-based models describe high-dimensional data (<b>prices</b>) to low-dimensional representations (<b>factors</b>), and learn factors self-adaptively. Although latent factor models have demonstrated substantial success in financial trading tasks, they still face several significant issues:
           </p>
@@ -148,6 +156,10 @@ layout: null
               <p>Existing latent factor models primarily focus on generating factors without adequately differentiating between them. Furthermore, they neglect the crucial process of factor selection, which is essential for identifying impactful factors, thereby limiting the model's overall effectiveness and precision.</p>
             </div>
           </div>
+          <p class="lead">
+            In order to address the challenges, we propose a <b>S</b>patio-<b>T</b>emporal fact<b>OR</b> <b>M</b>odel based on dual vector quantized variational autoencoders (VQ-VAE), named STORM. Unlike traditional scalar-valued financial factors with clear economic interpretations, STORM learns high-dimensional latent vectors that, while less interpretable capture complexity and nonlinearity inherent in financial martket (<b>CH1</b>).
+Additionally, we develop a dual VQ-VAE architecture to capture cross-sectional and time-series features, considering both spatial and temporal perspectives. By integrating these features at both fine-grained and semantic levels, the model constructs more effective factors. Through diversity and orthogonality loss constraints, we ensure representation independence among learned representations (<b>CH2</b>). Furthermore, codebook embeddings act as cluster centers, serving as class tokens to categorize factor embeddings. This strategy provides clarity and transparency to the differentiation and selection process of factors (<b>CH3</b>).
+          </p>
         </div>
       </section>
 
@@ -155,6 +167,38 @@ layout: null
         <div class="container">
           <h2>Methodology</h2>
           <div class="grid-2">
+            <div class="panel">
+              <h3>Time-sieres and Cross-sectional Modules</h3>
+              <p>
+                <b>Patching and Encoding</b>: In TS module, observed data is divided along the stock number dimension. In CS module, it’s divided along the time axis. Then we use Transformer as encoders and decoders to capture complex patterns.</p>
+              <p>
+                <b>Codebook Construction and Optimization</b>:
+                <p>
+                Diversity loss \( \mathcal{L}_{\text{div}}=\frac{1}{GK}\sum_{g=1}^{G}\sum_{k=1}^{K}\bar{p}_{g,k} \log{\bar{p}_{g,k}} \) is to enhance representational capacity.
+                </p>
+                <p>
+                Orthogonality loss \( \mathcal{L}_{\text{ortho}}= \frac{1}{K^2}\left|\left| \ell_2(\mathbf{e})^\top \ell_2(\mathbf{e}) - I_K \right|\right|_F^2 \) forces factor orthogonality.
+                </p>
+              </p>
+              <p>
+                <b>Decoding and Reconstruction: </b>
+                $$
+                \begin{aligned}
+                \mathcal{L}_1 = & \lambda_{\text{ortho}}\mathcal{L}_{\text{ortho}} + \lambda_{\text{div}}\mathcal{L}_{\text{div}} \\
+                & + \left\|\mathbf{x}-\mathbf{x}'_{ts}\right\|^2_2 + \left\| \mathbf{x}-\mathbf{x}'_{cs}\right\|^2_2 \\
+                & + \left\|sg[\mathbf{z}_e^{ts}(\mathbf{x})]-\mathbf{z}_q^{ts}(\mathbf{x})\right\|^2_2 + \left\|sg[\mathbf{z}_q^{ts}(\mathbf{x})]-\mathbf{z}_e^{ts}(\mathbf{x})\right\|^2_2 \\
+                & + \left\|sg[\mathbf{z}_e^{cs}(\mathbf{x})]-\mathbf{z}_q^{cs}(\mathbf{x})\right\|^2_2 + \left\|sg[\mathbf{z}_q^{cs}(\mathbf{x})]-\mathbf{z}_e^{cs}(\mathbf{x})\right\|^2_2
+                \end{aligned} $$
+              </p>
+
+              <h3>Factor Module</h3>
+              <p>
+                <b>Feature Fusion and Alignment</b>: We use multiscale encoder and contrastive learning layer to fuse and align TS and CS features at fine-grained and semantic levels.
+              </p>
+              <p>
+                <b>Prior - Posterior Learning</b>: Concatenate two latent features, which are used to predict the future returns. The factors are then be used in portfolio and trading downstream tasks.
+              </p>
+            </div>
             <div class="panel">
               <h3>Method overview</h3>
               <p>
@@ -168,59 +212,539 @@ layout: null
                 />
                 <figcaption>Figure 2: STORM's architecture.</figcaption>
               </figure>
+              <h3>Downstream Tasks</h3>
+              <p>
+                <b>Portfolio Management</b>: We utilize the factor decoder network to generate stock future returns \( \mathbf{\hat{y}}\), and then apply the <i>TopK-Drop strategy</i>, which constructs a daily portfolio by selecting the top \( k\) stocks based on predicted returns, to backtest the factor model.
+              </p>
+              <p>
+                <b>Algorithmic Trading</b>: The latent factor embeddings \( \mathbf{Z} \) are integrated into the observation set \( \mathcal{O}=\{\mathbf{Z}, \mathcal{R}\} \), where \( \mathcal{R} \) is the reward function used to guide the agent's learning and decision-making in the environment. We use the Proximal Policy Optimization (PPO) algorithm to optimize the policy.
+              </p>
             </div>
-            <div class="panel">
-              <h3>Time-sieres and Cross-sectional Modules</h3>
-              <p>
-                <b>Patching and Encoding</b>: In TS module, observed data is divided along the stock number dimension. In CS module, it’s divided along the time axis. Then we use Transformer as encoders and decoders to capture complex patterns.</p>
-              <p>
-                <b>Codebook Construction and Optimization</b>:
-                Diversity loss <code>\mathcal{L}_{div}</code> enhance representational capacity.
-                Orthogonality loss forces factor orthogonality.
-              </p>
-              <p>
-                <b>Decoding and Reconstruction: </b>
-              </p>
-
-              <h3>Factor Module</h3>
-              <p>
-                <b>Feature Fusion and Alignment</b>: We use multiscale encoder and contrastive learning layer to fuse and align TS and CS features at fine-grained and semantic levels.
-              </p>
-              <p>
-                <b>Prior - Posterior Learning</b>: Concatenate two latent features, which are used to predict the future returns. The factors are then be used in portfolio and trading downstream tasks.
-              </p>
-              
-              <!-- <p class="small muted">
-                Replace with your real numbers and add a note about dataset /
-                metric.
-              </p> -->
-            </div>
+            </p>
           </div>
         </div>
       </section>
 
-      <section id="resources" class="section">
+      <section id="Experiment Results" class="section">
         <div class="container">
-          <h2>Resources</h2>
-          <div class="resource-list">
-            <a class="resource" href="#" target="_blank" rel="noreferrer">
-              <div class="resource-title">Paper</div>
-              <div class="resource-desc">PDF + supplementary</div>
-            </a>
-            <a class="resource" href="#" target="_blank" rel="noreferrer">
-              <div class="resource-title">Code</div>
-              <div class="resource-desc">GitHub repository</div>
-            </a>
-            <a class="resource" href="#" target="_blank" rel="noreferrer">
-              <div class="resource-title">Dataset</div>
-              <div class="resource-desc">Download / instructions</div>
-            </a>
-            <a class="resource" href="#" target="_blank" rel="noreferrer">
-              <div class="resource-title">Poster</div>
-              <div class="resource-desc">High-res PDF</div>
-            </a>
+          <h2>Experiment Results</h2>
+
+          <h3>Portfolio Management Task</h3>
+          
+          <div class="grid-2">
+          <div class="panel">
+            <h3>SP500 Dataset</h3>
+      
+            <div class="table-wrap">
+              <table class="results-table">
+                <thead>
+                  <tr>
+                    <th rowspan="2">Strategy</th>
+                    <th colspan="2">Profit</th>
+                    <th colspan="2">Risk-Adj. Profit</th>
+                    <th colspan="2">Risk</th>
+                  </tr>
+                  <tr>
+                    <th>APY ↑</th>
+                    <th>CW ↑</th>
+                    <th>CR ↑</th>
+                    <th>ASR ↑</th>
+                    <th>MDD ↓</th>
+                    <th>AVO ↓</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Market Index</td>
+                    <td>0.058</td>
+                    <td>1.184</td>
+                    <td>0.228</td>
+                    <td>0.142</td>
+                    <td>0.254</td>
+                    <td>0.410</td>
+                  </tr>
+                  <tr>
+                    <td>LightGBM</td>
+                    <td>0.059</td>
+                    <td>1.201</td>
+                    <td>0.304</td>
+                    <td>0.332</td>
+                    <td>0.238</td>
+                    <td>0.176</td>
+                  </tr>
+                  <tr>
+                    <td>LSTM</td>
+                    <td>0.069</td>
+                    <td>1.221</td>
+                    <td>0.278</td>
+                    <td>0.371</td>
+                    <td>0.248</td>
+                    <td>0.186</td>
+                  </tr>
+                  <tr>
+                    <td>Transformer</td>
+                    <td>0.076</td>
+                    <td>1.244</td>
+                    <td>0.389</td>
+                    <td>0.433</td>
+                    <td><u>0.198</u><sup>1</sup></td>
+                    <td>0.174</td>
+                  </tr>
+                  <tr>
+                    <td>CAFactor</td>
+                    <td>0.075</td>
+                    <td>1.241</td>
+                    <td>0.342</td>
+                    <td>0.428</td>
+                    <td>0.223</td>
+                    <td>0.174</td>
+                  </tr>
+                  <tr>
+                    <td>FactorVAE</td>
+                    <td><u>0.079</u></td>
+                    <td><u>1.256</u></td>
+                    <td><u>0.404</u></td>
+                    <td><u>0.460</u></td>
+                    <td>0.200</td>
+                    <td>0.173</td>
+                  </tr>
+                  <tr>
+                    <td>HireVAE</td>
+                    <td>0.077</td>
+                    <td>1.249</td>
+                    <td>0.361</td>
+                    <td>0.448</td>
+                    <td>0.216</td>
+                    <td><u>0.172</u></td>
+                  </tr>
+                  <tr class="row-storm">
+                    <td><strong>STORM</strong></td>
+                    <td><strong>0.188</strong></td>
+                    <td><strong>1.683</strong></td>
+                    <td><strong>1.189</strong></td>
+                    <td><strong>1.052</strong></td>
+                    <td>0.166</td>
+                    <td>0.171</td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td><span class="small muted">± 0.055</span></td>
+                      <td><span class="small muted">± 0.226</span></td>
+                      <td><span class="small muted">± 0.661</span></td>
+                      <td><span class="small muted">± 0.329</span></td>
+                      <td><span class="small muted">± 0.050</span></td>
+                      <td><span class="small muted">± 0.020</span></td>
+                    </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+      
+            <p class="small muted">
+              Table 1: Portfolio management task results of all models across six metrics
+              (mean ± range, computed across 10 runs) on SP500 dataset.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>DJ30 dataset</h3>
+      
+            <div class="table-wrap">
+              <table class="results-table">
+                <thead>
+                  <tr>
+                    <th rowspan="2">Strategy</th>
+                    <th colspan="2">Profit</th>
+                    <th colspan="2">Risk-Adj. Profit</th>
+                    <th colspan="2">Risk</th>
+                  </tr>
+                  <tr>
+                    <th>APY ↑</th>
+                    <th>CW ↑</th>
+                    <th>CR ↑</th>
+                    <th>ASR ↑</th>
+                    <th>MDD ↓</th>
+                    <th>AVO ↓</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Market Index</td>
+                    <td>0.063</td>
+                    <td>1.201</td>
+                    <td>0.147</td>
+                    <td>0.429</td>
+                    <td>0.219</td>
+                    <td>0.288</td>
+                  </tr>
+                  
+                  <tr>
+                    <td>LightGBM</td>
+                    <td>0.069</td>
+                    <td>1.221</td>
+                    <td>0.288</td>
+                    <td>0.430</td>
+                    <td>0.244</td>
+                    <td>0.160</td>
+                  </tr>
+                  
+                  <tr>
+                    <td>LSTM</td>
+                    <td>0.060</td>
+                    <td>1.192</td>
+                    <td>0.243</td>
+                    <td>0.370</td>
+                    <td>0.248</td>
+                    <td>0.163</td>
+                  </tr>
+                  
+                  <tr>
+                    <td>Transformer</td>
+                    <td>0.056</td>
+                    <td>1.179</td>
+                    <td>0.227</td>
+                    <td>0.367</td>
+                    <td>0.250</td>
+                    <td>0.154</td>
+                  </tr>
+                  
+                  <tr>
+                    <td>CAFactor</td>
+                    <td>0.059</td>
+                    <td>1.186</td>
+                    <td>0.233</td>
+                    <td>0.382</td>
+                    <td>0.252</td>
+                    <td><u>0.153</u></td>
+                  </tr>
+                  
+                  <tr>
+                    <td>FactorVAE</td>
+                    <td><u>0.076</u></td>
+                    <td><u>1.246</u></td>
+                    <td><u>0.352</u></td>
+                    <td><u>0.480</u></td>
+                    <td><u>0.225</u></td>
+                    <td>0.159</td>
+                  </tr>
+                  
+                  <tr>
+                    <td>HireVAE</td>
+                    <td>0.072</td>
+                    <td>1.233</td>
+                    <td>0.298</td>
+                    <td>0.445</td>
+                    <td>0.247</td>
+                    <td>0.163</td>
+                  </tr>
+                  
+                  <tr class="row-storm">
+                    <td><strong>STORM</strong></td>
+                    <td><strong>0.148</strong></td>
+                    <td><strong>1.517</strong></td>
+                    <td><strong>1.396</strong></td>
+                    <td><strong>1.052</strong></td>
+                    <td><strong>0.108</strong></td>
+                    <td><strong>0.140</strong></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td><span class="small muted">± 0.046</span></td>
+                    <td><span class="small muted">± 0.188</span></td>
+                    <td><span class="small muted">± 0.679</span></td>
+                    <td><span class="small muted">± 0.297</span></td>
+                    <td><span class="small muted">± 0.026</span></td>
+                    <td><span class="small muted">± 0.014</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+      
+            <p class="small muted">
+              Table 2: Portfolio management task results of all models across six metrics on DJ30 dataset.
+            </p>
           </div>
         </div>
+        
+        <h3>Algorithmic Trading Task</h3>
+        <div class="table-wrap">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Models</th>
+                <th colspan="3">AAPL</th>
+                <th colspan="3">JPM</th>
+                <th colspan="3">IBM</th>
+                <th colspan="3">INTC</th>
+                <th colspan="3">MSFT</th>
+              </tr>
+              <tr>
+                <th>APY ↑</th><th>CW ↑</th><th>CR ↑</th>
+                <th>APY ↑</th><th>CW ↑</th><th>CR ↑</th>
+                <th>APY ↑</th><th>CW ↑</th><th>CR ↑</th>
+                <th>APY ↑</th><th>CW ↑</th><th>CR ↑</th>
+                <th>APY ↑</th><th>CW ↑</th><th>CR ↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Buy&Hold -->
+              <tr>
+                <td>Buy&amp;Hold</td>
+                <td>0.120</td><td>1.404</td><td>0.383</td>
+                <td>0.096</td><td>1.316</td><td>0.236</td>
+                <td>0.145</td><td>1.499</td><td>0.727</td>
+                <td>-0.117</td><td>0.690</td><td>-0.184</td>
+                <td>0.214</td><td>1.784</td><td>0.569</td>
+              </tr>
+        
+              <!-- LightGBM -->
+              <tr>
+                <td>LightGBM</td>
+                <td>0.135</td><td>1.390</td><td>0.487</td>
+                <td>0.116</td><td>1.335</td><td>0.333</td>
+                <td><u>0.227</u></td><td><u>1.654</u></td><td>1.091</td>
+                <td>-0.042</td><td>0.880</td><td>0.038</td>
+                <td><u>0.267</u></td><td><u>2.068</u></td><td>0.637</td>
+              </tr>
+        
+              <!-- LSTM (mean only) -->
+              <tr>
+                <td>LSTM</td>
+                <td>0.053</td><td>1.152</td><td>0.283</td>
+                <td>0.079</td><td>1.290</td><td>0.266</td>
+                <td>0.134</td><td>1.386</td><td>0.754</td>
+                <td>0.060</td><td>1.262</td><td>0.381</td>
+                <td>0.178</td><td>1.513</td><td>0.893</td>
+              </tr>
+        
+              <!-- Transformer (mean only) -->
+              <tr>
+                <td>Transformer</td>
+                <td>0.083</td><td>1.240</td><td>0.512</td>
+                <td><u>0.133</u></td><td><u>1.384</u></td><td><u>0.614</u></td>
+                <td>0.131</td><td>1.377</td><td>0.782</td>
+                <td><u>0.079</u></td><td><u>1.290</u></td><td><u>0.458</u></td>
+                <td>0.138</td><td>1.397</td><td>0.726</td>
+              </tr>
+        
+              <!-- DQN (mean only) -->
+              <tr>
+                <td>DQN</td>
+                <td>0.135</td><td>1.374</td><td>0.510</td>
+                <td>0.105</td><td>1.305</td><td>0.607</td>
+                <td>0.139</td><td>1.400</td><td>0.802</td>
+                <td>0.061</td><td>1.185</td><td>0.442</td>
+                <td>0.166</td><td>1.475</td><td>0.534</td>
+              </tr>
+        
+              <!-- SAC (mean only) -->
+              <tr>
+                <td>SAC</td>
+                <td><u>0.147</u></td><td><u>1.509</u></td><td><u>0.528</u></td>
+                <td>0.131</td><td>1.383</td><td>0.400</td>
+                <td>0.207</td><td>1.598</td><td><u>1.170</u></td>
+                <td>0.056</td><td>1.165</td><td>0.353</td>
+                <td>0.229</td><td>1.656</td><td><u>0.929</u></td>
+              </tr>
+        
+              <!-- PPO (mean only) -->
+              <tr>
+                <td>PPO</td>
+                <td>0.137</td><td>1.379</td><td>0.496</td>
+                <td>0.128</td><td>1.372</td><td>0.356</td>
+                <td>0.146</td><td>1.422</td><td>0.779</td>
+                <td>-0.019</td><td>0.954</td><td>0.040</td>
+                <td>0.216</td><td>1.620</td><td>0.569</td>
+              </tr>
+        
+              <!-- STORM -->
+              <tr class="row-storm">
+                <td><strong>STORM</strong></td>
+                <td><strong>0.229</strong></td><td><strong>1.857</strong></td><td>0.750</td>
+                <td><strong>0.174</strong></td><td><strong>1.621</strong></td><td>0.559</td>
+                <td><strong>0.236</strong></td><td><strong>1.893</strong></td><td><strong>1.470</strong></td>
+                <td><strong>0.173</strong></td><td><strong>1.625</strong></td><td><strong>0.773</strong></td>
+                <td><strong>0.290</strong></td><td><strong>2.154</strong></td><td><strong>1.216</strong></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td><span class="small muted">± 0.033</span></td>
+                <td><span class="small muted">± 0.154</span></td>
+                <td><span class="small muted">± 0.066</span></td>
+        
+                <td><span class="small muted">± 0.032</span></td>
+                <td><span class="small muted">± 0.133</span></td>
+                <td><span class="small muted">± 0.081</span></td>
+        
+                <td><span class="small muted">± 0.039</span></td>
+                <td><span class="small muted">± 0.184</span></td>
+                <td><span class="small muted">± 0.445</span></td>
+        
+                <td><span class="small muted">± 0.067</span></td>
+                <td><span class="small muted">± 0.284</span></td>
+                <td><span class="small muted">± 0.293</span></td>
+        
+                <td><span class="small muted">± 0.052</span></td>
+                <td><span class="small muted">± 0.262</span></td>
+                <td><span class="small muted">± 0.597</span></td>
+              </tr>
+              <!-- Improvement -->
+              <tr>
+                <td>Improvement (%)</td>
+                <td>55.782</td><td>23.062</td><td>45.076</td>
+                <td>30.827</td><td>17.124</td><td>2.117</td>
+                <td>3.965</td><td>14.4501</td><td>20.408</td>
+                <td>118.987</td><td>26.969</td><td>66.594</td>
+                <td>8.614</td><td>4.159</td><td>30.893</td>
+              </tr>
+            </tbody>
+          </table>
+    
+            <p class="small muted">
+              Table 3: Algorithmic trading task results on all models.
+            </p>
+        </div>
+      
+        <h3>Factor Quality Evaluation Task</h3>
+        <div class="table-wrap">
+          <table class="results-table">
+            <tbody>
+              <tr>
+                <th rowspan="2">Model</th>
+                <th colspan="2">SP500</th>
+                <th colspan="2">DJ30</th>
+              </tr>
+              <tr>
+                <th>RankIC ↑</th>
+                <th>RankICIR ↑</th>
+                <th>RankIC ↑</th>
+                <th>RankICIR ↑</th>
+              </tr>
+            <!-- LightGBM -->
+            <tr>
+              <td>LightGBM</td>
+              <td>
+                0.027 <span class="small muted">± 0.006</span>
+              </td>
+              <td>
+                0.274 <span class="small muted">± 0.084</span>
+              </td>
+              <td>
+                0.031 <span class="small muted">± 0.005</span>
+              </td>
+              <td>
+                0.272 <span class="small muted">± 0.049</span>
+              </td>
+            </tr>
+
+            <!-- LSTM -->
+            <tr>
+              <td>LSTM</td>
+              <td>
+                0.034 <span class="small muted">± 0.006</span>
+              </td>
+              <td>
+                0.333 <span class="small muted">± 0.042</span>
+              </td>
+              <td>
+                0.031 <span class="small muted">± 0.004</span>
+              </td>
+              <td>
+                0.329 <span class="small muted">± 0.056</span>
+              </td>
+            </tr>
+
+            <!-- Transformer -->
+            <tr>
+              <td>Transformer</td>
+              <td>
+                0.035 <span class="small muted">± 0.007</span>
+              </td>
+              <td>
+                0.340 <span class="small muted">± 0.078</span>
+              </td>
+              <td>
+                0.033 <span class="small muted">± 0.005</span>
+              </td>
+              <td>
+                0.343 <span class="small muted">± 0.045</span>
+              </td>
+            </tr>
+
+            <!-- CAFactor -->
+            <tr>
+              <td>CAFactor</td>
+              <td>
+                0.037 <span class="small muted">± 0.005</span>
+              </td>
+              <td>
+                0.356 <span class="small muted">± 0.084</span>
+              </td>
+              <td>
+                0.040 <span class="small muted">± 0.003</span>
+              </td>
+              <td>
+                0.380 <span class="small muted">± 0.043</span>
+              </td>
+            </tr>
+
+            <!-- FactorVAE -->
+            <tr>
+              <td>FactorVAE</td>
+              <td>
+                0.052 <span class="small muted">± 0.010</span>
+              </td>
+              <td>
+                0.543 <span class="small muted">± 0.122</span>
+              </td>
+              <td>
+                0.056 <span class="small muted">± 0.012</span>
+              </td>
+              <td>
+                0.520 <span class="small muted">± 0.081</span>
+              </td>
+            </tr>
+
+            <!-- HireVAE -->
+            <tr>
+              <td>HireVAE</td>
+              <td>
+                <u>0.057</u> <span class="small muted">± 0.006</span>
+              </td>
+              <td>
+                <u>0.558</u> <span class="small muted">± 0.058</span>
+              </td>
+              <td>
+                <u>0.058</u> <span class="small muted">± 0.006</span>
+              </td>
+              <td>
+                <u>0.563</u> <span class="small muted">± 0.053</span>
+              </td>
+            </tr>
+
+            <!-- STORM -->
+            <tr class="row-storm">
+              <td><strong>STORM</strong></td>
+              <td>
+                <strong>0.062</strong> <span class="small muted">± 0.018</span>
+              </td>
+              <td>
+                <strong>0.673</strong> <span class="small muted">± 0.155</span>
+              </td>
+              <td>
+                <strong>0.065</strong> <span class="small muted">± 0.038</span>
+              </td>
+              <td>
+                <strong>0.668</strong> <span class="small muted">± 0.287</span>
+              </td>
+            </tr>
+          </tbody>
+          </table>
+    
+            <p class="small muted">
+              Table 4: Factor quality evaluation task results on RankIC and RankICIR (mean ± range, computed across 10 runs) 
+            </p>
+        </div>
+      </div>
       </section>
 
       <section id="citation" class="section section-alt">
@@ -238,9 +762,6 @@ author={Zhao, Yilei and Zhang, Wentao and Yang, Tingran and Jiang, Yong and Huan
 journal={arXiv preprint arXiv:2412.09468},
 year={2024}
 }</code></pre>
-          <p class="small muted">
-            Update the BibTeX entry to match your paper.
-          </p>
         </div>
       </section>
     </main>

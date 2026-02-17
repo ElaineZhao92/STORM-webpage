@@ -96,7 +96,33 @@ function setupCitationCopy() {
   });
 }
 
+function setupResultsModal() {
+  const openBtn = document.getElementById("open-results-modal");
+  const modal = document.getElementById("results-modal");
+  if (!openBtn || !modal) return;
+
+  const closeEls = modal.querySelectorAll("[data-results-close]");
+
+  const open = () => {
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+  };
+
+  const close = () => {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  };
+
+  openBtn.addEventListener("click", open);
+  closeEls.forEach((el) => el.addEventListener("click", close));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+}
+
 setupYear();
 setupLastUpdated();
 setupMobileNav();
 setupCitationCopy();
+setupResultsModal();

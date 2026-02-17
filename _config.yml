@@ -2,9 +2,7 @@ title: "STORM — Project Page"
 description: "Project webpage for STORM: overview, highlights, resources, and citation."
 
 # GitHub Pages project site settings:
-# baseurl 必须和 GitHub 仓库名完全一致，否则 CSS/JS 会 404
-# 仓库名 STORM-webpage → 访问 https://elainezhao92.github.io/STORM-webpage/
-# 若把仓库改名为 storm，这里改为 baseurl: "/storm"
+# https://elainezhao92.github.io/STORM-webpage/
 url: "https://elainezhao92.github.io"
 baseurl: "/STORM-webpage"
 
